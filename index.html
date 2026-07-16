@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0d0d0d" />
     <meta name="description" content="تطبيق إشارات تداول العملات الرقمية باستخدام Order Blocks و ADX" />
-    <!-- تضمين manifest.json مباشرة باستخدام Data URI -->
     <link rel="manifest" href='data:application/json;charset=utf-8,%7B%22name%22%3A%22%D8%A5%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA%20%D9%83%D8%B1%D9%8A%D8%A8%D8%AA%D9%88%22%2C%22short_name%22%3A%22CryptoSignals%22%2C%22description%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A5%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%AA%D8%AF%D8%A7%D9%88%D9%84%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B1%D9%82%D9%85%D9%8A%D8%A9%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230d0d0d%22%2C%22theme_color%22%3A%22%230d0d0d%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520512%2520512'%253E%253Crect%2520width%3D'512'%2520height%3D'512'%2520fill%3D'%2523f0b90b'%2F%253E%253Ctext%2520x%3D'50%2525'%2520y%3D'50%2525'%2520dominant-baseline%3D'middle'%2520text-anchor%3D'middle'%2520font-size%3D'256'%2520font-weight%3D'bold'%2520fill%3D'%25230d0d0d'%2520font-family%3D'Arial'%253E%25F0%259F%2593%2588%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520192%2520192'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520fill%3D'%2523f0b90b'%2F%253E%253Ctext%2520x%3D'50%2525'%2520y%3D'50%2525'%2520dominant-baseline%3D'middle'%2520text-anchor%3D'middle'%2520font-size%3D'96'%2520font-weight%3D'bold'%2520fill%3D'%25230d0d0d'%2520font-family%3D'Arial'%253E%25F0%259F%2593%2588%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D' />
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23f0b90b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='256' font-weight='bold' fill='%230d0d0d' font-family='Arial'%3E📈%3C/text%3E%3C/svg%3E" />
     <title>Crypto Signals PWA</title>
+    <!-- تم إصلاح مكتبة الصوت: تحميلها بشكل عادي وليس بواسطة import -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <style>
-        /* ====== كل التصميم (CSS) هنا ====== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0d0d0d; color: #e0e0e0; padding-bottom: 80px; }
         #app { max-width: 800px; margin: 0 auto; padding: 16px; }
@@ -90,10 +89,9 @@
         <section class="history-panel"><h2>سجل الإشارات</h2><div id="history-list" class="history-list"></div></section>
     </div>
 
-    <script type="module">
-        // ====== كل كود JavaScript هنا ======
-        import { Howl } from 'https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js';
-
+    <script>
+        // ====== كل كود JavaScript هنا (تم إزالة type="module" و import نهائياً) ======
+        
         const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'SUIUSDT', 'LINKUSDT', 'AVAXUSDT', 'ADAUSDT'];
         const BINANCE_WS_BASE = 'wss://stream.binance.com:9443/ws';
 
@@ -111,10 +109,20 @@
         const installBtn = document.getElementById('install-btn');
 
         function initSound() {
-            alertSound = new Howl({ src: ['https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'], volume: 0.5, html5: true });
+            // الآن أصبح Howl متاحاً مباشرة من النافذة (window) بفضل script tag
+            try {
+                alertSound = new Howl({ 
+                    src: ['https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'], 
+                    volume: 0.5, 
+                    html5: true 
+                });
+                console.log("مكتبة الصوت جاهزة");
+            } catch (e) {
+                console.warn("تعذر تحميل مكتبة الصوت، التطبيق سيعمل بدون صوت", e);
+            }
         }
 
-        // --- المؤشرات ---
+        // --- المؤشرات (كما هي) ---
         function calculateADX(candles, period = 14) {
             if (candles.length < period + 1) return null;
             const high = candles.map(c => c.high), low = candles.map(c => c.low), close = candles.map(c => c.close);
@@ -236,20 +244,55 @@
 
         // --- WebSocket ---
         function connectWebSocket(symbol) {
-            const ws = new WebSocket(`${BINANCE_WS_BASE}/${symbol.toLowerCase()}@kline_15m`);
-            ws.onmessage = (e) => {
-                const k = JSON.parse(e.data).k;
-                if (k.x) {
-                    const candle = { time: k.t, open: parseFloat(k.o), high: parseFloat(k.h), low: parseFloat(k.l), close: parseFloat(k.c) };
-                    if (!candleData[symbol]) candleData[symbol] = [];
-                    candleData[symbol].push(candle);
-                    if (candleData[symbol].length > 200) candleData[symbol].shift();
-                    marketData[symbol] = { price: candle.close, change: 0 };
-                    analyzeSymbol(symbol).then(signal => { if (signal) addSignal(signal); });
-                    updateMarketOverview(); updateStats();
-                }
-            };
-            ws.onclose = () => setTimeout(() => connectWebSocket(symbol), 5000);
+            try {
+                const ws = new WebSocket(`${BINANCE_WS_BASE}/${symbol.toLowerCase()}@kline_15m`);
+                
+                ws.onopen = () => {
+                    console.log(`✅ تم الاتصال بـ ${symbol}`);
+                    updateMarketOverview(); // تحديث واجهة المستخدم لتختفي رسالة التحميل
+                };
+
+                ws.onerror = (e) => {
+                    console.error(`❌ خطأ في الاتصال بـ ${symbol}:`, e);
+                    // لا نقوم بأي شيء لأن onclose سيعيد المحاولة
+                };
+
+                ws.onmessage = (e) => {
+                    try {
+                        const k = JSON.parse(e.data).k;
+                        if (k.x) { // شمعة مكتملة
+                            const candle = { 
+                                time: k.t, 
+                                open: parseFloat(k.o), 
+                                high: parseFloat(k.h), 
+                                low: parseFloat(k.l), 
+                                close: parseFloat(k.c) 
+                            };
+                            if (!candleData[symbol]) candleData[symbol] = [];
+                            candleData[symbol].push(candle);
+                            if (candleData[symbol].length > 200) candleData[symbol].shift();
+                            marketData[symbol] = { price: candle.close, change: 0 };
+                            
+                            // تحليل الإشارة
+                            analyzeSymbol(symbol).then(signal => { 
+                                if (signal) addSignal(signal); 
+                            });
+                            
+                            updateMarketOverview(); 
+                            updateStats();
+                        }
+                    } catch (parseError) {
+                        console.error("خطأ في تحليل بيانات WebSocket:", parseError);
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.warn(`⚠️ تم قطع الاتصال بـ ${symbol}، إعادة المحاولة بعد 5 ثوانٍ...`);
+                    setTimeout(() => connectWebSocket(symbol), 5000);
+                };
+            } catch (e) {
+                console.error(`فشل إنشاء WebSocket لـ ${symbol}:`, e);
+            }
         }
 
         // --- عرض الإشارات ---
@@ -259,11 +302,13 @@
             renderSignal(signal);
             renderHistory();
             if (notificationsEnabled) { triggerNotification(signal); playAlertSound(); vibrateDevice(); }
-            // تحديث إحصائيات الربح/الخسارة (محاكاة بسيطة)
+            
+            // محاكاة بسيطة للإحصائيات
             if (signalsHistory.length > 1) {
                 const last = signalsHistory[signalsHistory.length-2];
                 const price = marketData[signal.symbol]?.price || signal.entry;
-                if (last.type === 'buy' && price > last.entry) winCount++; else if (last.type === 'sell' && price < last.entry) winCount++;
+                if (last.type === 'buy' && price > last.entry) winCount++; 
+                else if (last.type === 'sell' && price < last.entry) winCount++;
                 else lossCount++;
                 updateStats();
             }
@@ -320,6 +365,12 @@
 
         // --- تحديث الواجهة ---
         function updateMarketOverview() {
+            // عرض رسالة اتصال إذا لم تصل أي بيانات بعد
+            if (Object.keys(marketData).length === 0) {
+                marketOverviewEl.innerHTML = `<div class="market-item" style="grid-column: 1/-1; text-align:center; color: #888; padding: 20px;">🔄 جارٍ الاتصال بـ Binance لتحميل البيانات...</div>`;
+                return;
+            }
+
             marketOverviewEl.innerHTML = '';
             SYMBOLS.forEach(sym => {
                 const data = marketData[sym];
@@ -355,24 +406,38 @@
         // --- التنبيهات ---
         function triggerNotification(signal) {
             if (!('Notification' in window) || Notification.permission !== 'granted') return;
-            new Notification(`إشارة جديدة: ${signal.symbol}`, {
-                body: `${signal.type === 'buy' ? 'شراء' : 'بيع'} عند ${signal.entry.toFixed(2)}`,
-                icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%23f0b90b"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="256" font-weight="bold" fill="%230d0d0d" font-family="Arial"%3E📈%3C/text%3E%3C/svg%3E'
-            });
+            try {
+                new Notification(`إشارة جديدة: ${signal.symbol}`, {
+                    body: `${signal.type === 'buy' ? 'شراء' : 'بيع'} عند ${signal.entry.toFixed(2)}`,
+                    icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%23f0b90b"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="256" font-weight="bold" fill="%230d0d0d" font-family="Arial"%3E📈%3C/text%3E%3C/svg%3E'
+                });
+            } catch (e) {}
         }
 
-        function playAlertSound() { if (alertSound) alertSound.play(); }
-        function vibrateDevice() { if (navigator.vibrate) navigator.vibrate(200); }
+        function playAlertSound() { 
+            try { if (alertSound) alertSound.play(); } catch (e) {} 
+        }
+        
+        function vibrateDevice() { 
+            try { if (navigator.vibrate) navigator.vibrate(200); } catch (e) {} 
+        }
 
         // --- تهيئة ---
         function init() {
             initSound();
             if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+            
+            // عرض رسالة التحميل فوراً
+            updateMarketOverview();
+            
+            // بدء الاتصال بجميع العملات
             SYMBOLS.forEach(sym => connectWebSocket(sym));
+            
             notificationToggle.addEventListener('click', () => {
                 notificationsEnabled = !notificationsEnabled;
                 notificationToggle.textContent = notificationsEnabled ? '🔔' : '🔕';
             });
+            
             // زر التثبيت
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
@@ -380,15 +445,20 @@
                 installBtn.addEventListener('click', () => { e.prompt(); });
             });
             window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
-            updateMarketOverview();
+            
             updateStats();
+            console.log("🚀 التطبيق يعمل بنجاح!");
         }
 
+        // بدء التطبيق
         init();
-        // تسجيل Service Worker
+        
+        // تسجيل Service Worker (يجب أن يكون service-worker.js في نفس المجلد)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js').then(() => console.log('SW registered')).catch(() => {});
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('✅ Service Worker مسجل'))
+                .catch(err => console.warn('⚠️ فشل تسجيل Service Worker:', err));
         }
     </script>
 </body>
-  </html>
+    </html>
