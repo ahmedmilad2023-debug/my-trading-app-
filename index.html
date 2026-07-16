@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0d0d0d" />
+    <meta name="description" content="تطبيق إشارات تداول العملات الرقمية باستخدام Order Blocks و ADX" />
+    <!-- تضمين manifest.json مباشرة باستخدام Data URI -->
+    <link rel="manifest" href='data:application/json;charset=utf-8,%7B%22name%22%3A%22%D8%A5%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA%20%D9%83%D8%B1%D9%8A%D8%A8%D8%AA%D9%88%22%2C%22short_name%22%3A%22CryptoSignals%22%2C%22description%22%3A%22%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A5%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%AA%D8%AF%D8%A7%D9%88%D9%84%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B1%D9%82%D9%85%D9%8A%D8%A9%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230d0d0d%22%2C%22theme_color%22%3A%22%230d0d0d%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520512%2520512'%253E%253Crect%2520width%3D'512'%2520height%3D'512'%2520fill%3D'%2523f0b90b'%2F%253E%253Ctext%2520x%3D'50%2525'%2520y%3D'50%2525'%2520dominant-baseline%3D'middle'%2520text-anchor%3D'middle'%2520font-size%3D'256'%2520font-weight%3D'bold'%2520fill%3D'%25230d0d0d'%2520font-family%3D'Arial'%253E%25F0%259F%2593%2588%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520192%2520192'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520fill%3D'%2523f0b90b'%2F%253E%253Ctext%2520x%3D'50%2525'%2520y%3D'50%2525'%2520dominant-baseline%3D'middle'%2520text-anchor%3D'middle'%2520font-size%3D'96'%2520font-weight%3D'bold'%2520fill%3D'%25230d0d0d'%2520font-family%3D'Arial'%253E%25F0%259F%2593%2588%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D' />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23f0b90b'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='256' font-weight='bold' fill='%230d0d0d' font-family='Arial'%3E📈%3C/text%3E%3C/svg%3E" />
+    <title>Crypto Signals PWA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <style>
+        /* ====== كل التصميم (CSS) هنا ====== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0d0d0d; color: #e0e0e0; padding-bottom: 80px; }
+        #app { max-width: 800px; margin: 0 auto; padding: 16px; }
+        header { display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 12px 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo .icon { font-size: 28px; }
+        .logo h1 { font-size: 20px; font-weight: 700; color: #f0b90b; }
+        .header-actions { display: flex; gap: 12px; }
+        .icon-btn { background: #2a2a2a; border: none; color: #e0e0e0; font-size: 24px; padding: 8px; border-radius: 50%; cursor: pointer; transition: background 0.2s; }
+        .icon-btn:hover { background: #3a3a3a; }
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #1a1a1a; padding: 12px 8px; border-radius: 12px; text-align: center; }
+        .stat-label { font-size: 12px; color: #888; display: block; margin-bottom: 4px; }
+        .stat-value { font-size: 18px; font-weight: 600; color: #f0b90b; }
+        .market-status h2 { font-size: 18px; margin-bottom: 12px; color: #ccc; }
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-bottom: 20px; }
+        .market-item { background: #1a1a1a; padding: 8px; border-radius: 8px; text-align: center; border-left: 3px solid #555; }
+        .market-item .symbol { font-weight: 600; font-size: 14px; }
+        .market-item .price { font-size: 13px; color: #ccc; }
+        .market-item .change { font-size: 12px; font-weight: 500; }
+        .market-item .change.positive { color: #4caf50; }
+        .market-item .change.negative { color: #f44336; }
+        .signals-panel h2, .history-panel h2 { font-size: 18px; margin-bottom: 12px; color: #ccc; }
+        .signals-list, .history-list { background: #1a1a1a; border-radius: 16px; padding: 12px; min-height: 120px; }
+        .placeholder { color: #666; text-align: center; padding: 20px 0; }
+        .signal-card { background: #222; border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; border-right: 4px solid #f0b90b; position: relative; }
+        .signal-card.buy { border-right-color: #4caf50; }
+        .signal-card.sell { border-right-color: #f44336; }
+        .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .signal-symbol { font-size: 18px; font-weight: 700; }
+        .signal-type { font-size: 14px; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: #333; }
+        .signal-type.buy { color: #4caf50; background: #1b3a1b; }
+        .signal-type.sell { color: #f44336; background: #3a1b1b; }
+        .signal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-size: 14px; margin-bottom: 8px; }
+        .signal-details span { color: #aaa; }
+        .signal-details .value { color: #fff; font-weight: 500; }
+        .signal-analysis { background: #2a2a2a; padding: 8px 12px; border-radius: 8px; font-size: 13px; color: #ccc; margin: 8px 0; line-height: 1.4; }
+        .signal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 12px; color: #888; }
+        .signal-actions { display: flex; gap: 8px; }
+        .signal-actions button { background: #333; border: none; color: #ccc; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: background 0.2s; }
+        .signal-actions button:hover { background: #444; }
+        .signal-strength { display: flex; align-items: center; gap: 6px; }
+        .strength-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+        .strength-weak { background: #ff9800; }
+        .strength-good { background: #8bc34a; }
+        .strength-strong { background: #4caf50; }
+        .strength-excellent { background: #00bcd4; }
+        .history-item { background: #1e1e1e; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #aaa; }
+        .history-item .h-symbol { font-weight: 600; color: #fff; }
+        .history-item .h-type { padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+        .history-item .h-type.buy { background: #1b3a1b; color: #4caf50; }
+        .history-item .h-type.sell { background: #3a1b1b; color: #f44336; }
+        .history-item .h-time { font-size: 11px; }
+        @media (max-width: 600px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .signal-details { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <div class="logo"><span class="icon">📈</span><h1>إشارات كريبتو</h1></div>
+            <div class="header-actions">
+                <button id="notification-toggle" class="icon-btn" aria-label="تفعيل/إيقاف التنبيهات">🔔</button>
+                <button id="install-btn" class="icon-btn" aria-label="تثبيت التطبيق" style="display:none;">📲</button>
+            </div>
+        </header>
+        <section class="dashboard">
+            <div class="stats-row">
+                <div class="stat-card"><span class="stat-label">الإشارات اليوم</span><span class="stat-value" id="daily-signals">0</span></div>
+                <div class="stat-card"><span class="stat-label">الرابحة</span><span class="stat-value" id="win-rate">0%</span></div>
+                <div class="stat-card"><span class="stat-label">الخاسرة</span><span class="stat-value" id="loss-rate">0%</span></div>
+                <div class="stat-card"><span class="stat-label">آخر تحديث</span><span class="stat-value" id="last-update">--:--</span></div>
+            </div>
+        </section>
+        <section class="market-status"><h2>حالة السوق</h2><div id="market-overview" class="market-grid"></div></section>
+        <section class="signals-panel"><h2>الإشارات الحية</h2><div id="signals-list" class="signals-list"><div class="placeholder">بانتظار الإشارات...</div></div></section>
+        <section class="history-panel"><h2>سجل الإشارات</h2><div id="history-list" class="history-list"></div></section>
+    </div>
+
+    <script type="module">
+        // ====== كل كود JavaScript هنا ======
+        import { Howl } from 'https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js';
+
+        const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'SUIUSDT', 'LINKUSDT', 'AVAXUSDT', 'ADAUSDT'];
+        const BINANCE_WS_BASE = 'wss://stream.binance.com:9443/ws';
+
+        let marketData = {}, candleData = {}, signalsHistory = [], dailySignalsCount = 0, winCount = 0, lossCount = 0, notificationsEnabled = true;
+        let alertSound = null;
+
+        const signalsListEl = document.getElementById('signals-list');
+        const historyListEl = document.getElementById('history-list');
+        const marketOverviewEl = document.getElementById('market-overview');
+        const dailySignalsEl = document.getElementById('daily-signals');
+        const winRateEl = document.getElementById('win-rate');
+        const lossRateEl = document.getElementById('loss-rate');
+        const lastUpdateEl = document.getElementById('last-update');
+        const notificationToggle = document.getElementById('notification-toggle');
+        const installBtn = document.getElementById('install-btn');
+
+        function initSound() {
+            alertSound = new Howl({ src: ['https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'], volume: 0.5, html5: true });
+        }
+
+        // --- المؤشرات ---
+        function calculateADX(candles, period = 14) {
+            if (candles.length < period + 1) return null;
+            const high = candles.map(c => c.high), low = candles.map(c => c.low), close = candles.map(c => c.close);
+            let tr = [], plusDM = [], minusDM = [];
+            for (let i = 1; i < close.length; i++) {
+                const h = high[i], l = low[i], pH = high[i-1], pL = low[i-1], pC = close[i-1];
+                tr.push(Math.max(h - l, Math.abs(h - pC), Math.abs(l - pC)));
+                const up = h - pH, down = pL - l;
+                plusDM.push((up > down && up > 0) ? up : 0);
+                minusDM.push((down > up && down > 0) ? down : 0);
+            }
+            const smooth = (arr, p) => {
+                let sm = [], first = arr.slice(0, p).reduce((a,b) => a + b, 0);
+                sm.push(first);
+                for (let i = p; i < arr.length; i++) sm.push(sm[sm.length-1] - (sm[sm.length-1]/p) + arr[i]);
+                return sm;
+            };
+            const tS = smooth(tr, period), pS = smooth(plusDM, period), mS = smooth(minusDM, period);
+            let dx = [];
+            for (let i = 0; i < tS.length; i++) {
+                const pDI = (pS[i] / tS[i]) * 100, mDI = (mS[i] / tS[i]) * 100;
+                const sum = pDI + mDI;
+                dx.push(sum === 0 ? 0 : Math.abs(pDI - mDI) / sum * 100);
+            }
+            const adxSmooth = smooth(dx, period);
+            return adxSmooth[adxSmooth.length-1];
+        }
+
+        function findOrderBlocks(candles) {
+            const blocks = { bullish: [], bearish: [] };
+            if (candles.length < 20) return blocks;
+            for (let i = 5; i < candles.length - 2; i++) {
+                const c = candles[i], c2 = candles[i+1], c3 = candles[i+2];
+                if (c.close < c.open && c2.close > c2.open && c2.close > c.high && c3.close > c3.open) {
+                    const body = Math.abs(c.close - c.open) / (c.high - c.low);
+                    if (body > 0.3) blocks.bullish.push({ index: i, high: c.high, low: c.low, open: c.open, close: c.close, time: c.time });
+                }
+                if (c.close > c.open && c2.close < c2.open && c2.close < c.low && c3.close < c3.open) {
+                    const body = Math.abs(c.close - c.open) / (c.high - c.low);
+                    if (body > 0.3) blocks.bearish.push({ index: i, high: c.high, low: c.low, open: c.open, close: c.close, time: c.time });
+                }
+            }
+            return blocks;
+        }
+
+        function isFirstRetest(block, candles, currentIndex) {
+            for (let i = block.index + 3; i < currentIndex; i++) {
+                const c = candles[i];
+                if (c.high > block.low && c.low < block.high) {
+                    let touchedBefore = false;
+                    for (let j = block.index + 3; j < i; j++) {
+                        const cj = candles[j];
+                        if (cj.high > block.low && cj.low < block.high) { touchedBefore = true; break; }
+                    }
+                    if (!touchedBefore) return true;
+                }
+            }
+            return false;
+        }
+
+        function confirmCandle(block, candles, currentIndex, direction) {
+            if (currentIndex < 1) return false;
+            const last = candles[currentIndex-1];
+            return direction === 'buy' ? last.close > block.high : last.close < block.low;
+        }
+
+        function isBlockValid(block, candles) {
+            let inside = 0;
+            for (let i = block.index + 1; i < block.index + 20 && i < candles.length; i++) {
+                const c = candles[i];
+                if (c.low < block.high && c.high > block.low) inside++;
+            }
+            return inside <= 5;
+        }
+
+        function generateSignal(symbol, direction, entry, sl, tp1, tp2, analysis, strength) {
+            return {
+                symbol, type: direction, entry, stopLoss: sl, takeProfit1: tp1, takeProfit2: tp2,
+                riskReward: ((tp1 - entry) / (entry - sl)).toFixed(2),
+                time: new Date().toLocaleString('ar-EG'), analysis, strength, id: Date.now() + symbol
+            };
+        }
+
+        async function analyzeSymbol(symbol) {
+            const candles = candleData[symbol];
+            if (!candles || candles.length < 30) return null;
+            const adx = calculateADX(candles);
+            if (adx === null || adx < 25) return null;
+            const blocks = findOrderBlocks(candles);
+            const lastIdx = candles.length - 1, current = candles[lastIdx];
+            
+            const checkBlock = (blocksList, direction) => {
+                if (blocksList.length === 0) return null;
+                const block = blocksList[blocksList.length-1];
+                if (block.index >= lastIdx - 5) return null;
+                if (!isBlockValid(block, candles)) return null;
+                if (!isFirstRetest(block, candles, lastIdx)) return null;
+                if (!confirmCandle(block, candles, lastIdx, direction)) return null;
+                const entry = current.close;
+                let sl, tp1, tp2;
+                if (direction === 'buy') {
+                    sl = block.low - (block.high - block.low) * 0.1;
+                    const risk = entry - sl;
+                    tp1 = entry + risk * 1.5; tp2 = entry + risk * 2.5;
+                } else {
+                    sl = block.high + (block.high - block.low) * 0.1;
+                    const risk = sl - entry;
+                    tp1 = entry - risk * 1.5; tp2 = entry - risk * 2.5;
+                }
+                let strength = 'جيدة';
+                if (adx > 30) strength = 'قوية';
+                if (adx > 40) strength = 'ممتازة';
+                const analysis = `تم اكتشاف Order Block ${direction === 'buy' ? 'صاعد' : 'هابط'} عند سعر ${block.close.toFixed(2)}، وتمت إعادة اختباره لأول مرة، وأغلق السعر ${direction === 'buy' ? 'فوق' : 'أسفل'} المنطقة عند ${entry.toFixed(2)} مع قوة اتجاه ADX ${adx.toFixed(1)} أكبر من 25.`;
+                return generateSignal(symbol, direction, entry, sl, tp1, tp2, analysis, strength);
+            };
+
+            return checkBlock(blocks.bullish, 'buy') || checkBlock(blocks.bearish, 'sell');
+        }
+
+        // --- WebSocket ---
+        function connectWebSocket(symbol) {
+            const ws = new WebSocket(`${BINANCE_WS_BASE}/${symbol.toLowerCase()}@kline_15m`);
+            ws.onmessage = (e) => {
+                const k = JSON.parse(e.data).k;
+                if (k.x) {
+                    const candle = { time: k.t, open: parseFloat(k.o), high: parseFloat(k.h), low: parseFloat(k.l), close: parseFloat(k.c) };
+                    if (!candleData[symbol]) candleData[symbol] = [];
+                    candleData[symbol].push(candle);
+                    if (candleData[symbol].length > 200) candleData[symbol].shift();
+                    marketData[symbol] = { price: candle.close, change: 0 };
+                    analyzeSymbol(symbol).then(signal => { if (signal) addSignal(signal); });
+                    updateMarketOverview(); updateStats();
+                }
+            };
+            ws.onclose = () => setTimeout(() => connectWebSocket(symbol), 5000);
+        }
+
+        // --- عرض الإشارات ---
+        function addSignal(signal) {
+            signalsHistory.push(signal);
+            dailySignalsCount++;
+            renderSignal(signal);
+            renderHistory();
+            if (notificationsEnabled) { triggerNotification(signal); playAlertSound(); vibrateDevice(); }
+            // تحديث إحصائيات الربح/الخسارة (محاكاة بسيطة)
+            if (signalsHistory.length > 1) {
+                const last = signalsHistory[signalsHistory.length-2];
+                const price = marketData[signal.symbol]?.price || signal.entry;
+                if (last.type === 'buy' && price > last.entry) winCount++; else if (last.type === 'sell' && price < last.entry) winCount++;
+                else lossCount++;
+                updateStats();
+            }
+        }
+
+        function renderSignal(signal) {
+            const card = document.createElement('div');
+            card.className = `signal-card ${signal.type}`;
+            const typeTxt = signal.type === 'buy' ? 'شراء' : 'بيع';
+            const sClass = `strength-${signal.strength === 'ممتازة' ? 'excellent' : signal.strength === 'قوية' ? 'strong' : signal.strength === 'جيدة' ? 'good' : 'weak'}`;
+            card.innerHTML = `
+                <div class="signal-header"><span class="signal-symbol">${signal.symbol}</span><span class="signal-type ${signal.type}">${typeTxt}</span></div>
+                <div class="signal-details">
+                    <span>الدخول: <span class="value">${signal.entry.toFixed(2)}</span></span>
+                    <span>وقف الخسارة: <span class="value">${signal.stopLoss.toFixed(2)}</span></span>
+                    <span>الهدف 1: <span class="value">${signal.takeProfit1.toFixed(2)}</span></span>
+                    <span>الهدف 2: <span class="value">${signal.takeProfit2.toFixed(2)}</span></span>
+                    <span>العائد/المخاطرة: <span class="value">${signal.riskReward}</span></span>
+                    <span>الوقت: <span class="value">${signal.time}</span></span>
+                </div>
+                <div class="signal-analysis">${signal.analysis}</div>
+                <div class="signal-footer">
+                    <div class="signal-strength"><span class="strength-indicator ${sClass}"></span><span>${signal.strength}</span></div>
+                    <div class="signal-actions"><button class="share-btn" data-symbol="${signal.symbol}" data-entry="${signal.entry}" data-sl="${signal.stopLoss}" data-tp1="${signal.takeProfit1}" data-tp2="${signal.takeProfit2}" data-analysis="${signal.analysis}">مشاركة</button></div>
+                </div>
+            `;
+            const placeholder = signalsListEl.querySelector('.placeholder');
+            if (placeholder) placeholder.remove();
+            signalsListEl.prepend(card);
+            
+            card.querySelector('.share-btn').addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: `إشارة ${signal.symbol}`,
+                        text: `العملة: ${signal.symbol}\nالنوع: ${typeTxt}\nالدخول: ${signal.entry.toFixed(2)}\nوقف: ${signal.stopLoss.toFixed(2)}\nالهدف1: ${signal.takeProfit1.toFixed(2)}\nالهدف2: ${signal.takeProfit2.toFixed(2)}\nالتحليل: ${signal.analysis}`
+                    }).catch(() => {});
+                } else {
+                    alert('المشاركة غير مدعومة في هذا المتصفح، يمكنك نسخ البيانات يدوياً.');
+                }
+            });
+        }
+
+        function renderHistory() {
+            historyListEl.innerHTML = '';
+            const last10 = signalsHistory.slice(-10).reverse();
+            if (last10.length === 0) { historyListEl.innerHTML = '<div class="placeholder">لا توجد إشارات سابقة</div>'; return; }
+            last10.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `<span class="h-symbol">${s.symbol}</span><span class="h-type ${s.type}">${s.type === 'buy' ? 'شراء' : 'بيع'}</span><span class="h-time">${s.time}</span>`;
+                historyListEl.appendChild(div);
+            });
+        }
+
+        // --- تحديث الواجهة ---
+        function updateMarketOverview() {
+            marketOverviewEl.innerHTML = '';
+            SYMBOLS.forEach(sym => {
+                const data = marketData[sym];
+                if (!data) {
+                    const div = document.createElement('div');
+                    div.className = 'market-item';
+                    div.innerHTML = `<span class="symbol">${sym}</span><span class="price">جاري التحميل...</span>`;
+                    marketOverviewEl.appendChild(div);
+                    return;
+                }
+                const div = document.createElement('div');
+                div.className = 'market-item';
+                const change = (Math.random() * 4 - 2).toFixed(2); // محاكاة للتغيير
+                const cls = change >= 0 ? 'positive' : 'negative';
+                div.innerHTML = `<span class="symbol">${sym}</span><span class="price">${data.price.toFixed(2)}</span><span class="change ${cls}">${change}%</span>`;
+                marketOverviewEl.appendChild(div);
+            });
+            lastUpdateEl.textContent = new Date().toLocaleTimeString('ar-EG');
+        }
+
+        function updateStats() {
+            dailySignalsEl.textContent = dailySignalsCount;
+            const total = winCount + lossCount;
+            if (total > 0) {
+                winRateEl.textContent = ((winCount / total) * 100).toFixed(0) + '%';
+                lossRateEl.textContent = ((lossCount / total) * 100).toFixed(0) + '%';
+            } else {
+                winRateEl.textContent = '0%';
+                lossRateEl.textContent = '0%';
+            }
+        }
+
+        // --- التنبيهات ---
+        function triggerNotification(signal) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            new Notification(`إشارة جديدة: ${signal.symbol}`, {
+                body: `${signal.type === 'buy' ? 'شراء' : 'بيع'} عند ${signal.entry.toFixed(2)}`,
+                icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%23f0b90b"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="256" font-weight="bold" fill="%230d0d0d" font-family="Arial"%3E📈%3C/text%3E%3C/svg%3E'
+            });
+        }
+
+        function playAlertSound() { if (alertSound) alertSound.play(); }
+        function vibrateDevice() { if (navigator.vibrate) navigator.vibrate(200); }
+
+        // --- تهيئة ---
+        function init() {
+            initSound();
+            if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+            SYMBOLS.forEach(sym => connectWebSocket(sym));
+            notificationToggle.addEventListener('click', () => {
+                notificationsEnabled = !notificationsEnabled;
+                notificationToggle.textContent = notificationsEnabled ? '🔔' : '🔕';
+            });
+            // زر التثبيت
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', () => { e.prompt(); });
+            });
+            window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
+            updateMarketOverview();
+            updateStats();
+        }
+
+        init();
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js').then(() => console.log('SW registered')).catch(() => {});
+        }
+    </script>
+</body>
+  </html>
